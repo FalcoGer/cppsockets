@@ -1,12 +1,11 @@
 #include <iostream>
 
-#include "TCPSocket.h"
-#include "NetAddress.h"
+#include "../TCPSocket.h"
 
 auto main() -> int
 {
-    const Port PORT{4444};
-    TCPSocket  server(NetAddress("::1"), PORT, true, Socket::EAddressFamily::IPV6);
+    const CPPSockets::Port PORT{4444};
+    CPPSockets::TCPSocket  server(CPPSockets::NetAddress("::1"), PORT, true, CPPSockets::Socket::EAddressFamily::IPV6);
 
     std::cout << *server.recv() << '\n';
     server.send("hello from client!");

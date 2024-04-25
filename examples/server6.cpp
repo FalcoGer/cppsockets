@@ -1,12 +1,11 @@
 #include <iostream>
 
-#include "ListeningSocket.h"
-#include "NetAddress.h"
+#include "../ListeningSocket.h"
 
 auto main() -> int
 {
-    const Port PORT{4444};
-    ListeningSocket sock(NetAddress("::1"), PORT, true, Socket::EAddressFamily::IPV6);
+    const CPPSockets::Port PORT{4444};
+    CPPSockets::ListeningSocket sock(CPPSockets::NetAddress("::1"), PORT, true, CPPSockets::Socket::EAddressFamily::IPV6);
 
     auto            client = *sock.accept();
     sock.close();
