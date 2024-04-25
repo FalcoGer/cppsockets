@@ -23,12 +23,9 @@ namespace CPPSockets
 
 class ListeningSocket : public Socket
 {
-  private:
-    bool m_isBlocking;
-
   public:
     ListeningSocket(const NetAddress& bindAddr, const Port& port, const bool BLOCKING, const EAddressFamily ADDRESS_FAMILY = EAddressFamily::IPV4)
-            : Socket(ADDRESS_FAMILY, EProtocol::TCP), m_isBlocking {BLOCKING}
+            : Socket(ADDRESS_FAMILY, EProtocol::TCP)
     {
         std::uint32_t enableReuse {1};
         if (setsockopt(getFD(), SOL_SOCKET, SO_REUSEADDR, &enableReuse, sizeof(enableReuse)) == -1)
@@ -112,21 +109,14 @@ class ListeningSocket : public Socket
     ListeningSocket(const ListeningSocket&)                     = delete;
     auto operator= (const ListeningSocket&) -> ListeningSocket& = delete;
 
-    ListeningSocket(ListeningSocket&& other) noexcept : Socket(std::move(other)), m_isBlocking {other.m_isBlocking} {}
+    ListeningSocket(ListeningSocket&& other) noexcept : Socket(std::move(other)) {}
     auto operator= (ListeningSocket&& other) noexcept -> ListeningSocket&
     {
         Socket::operator= (std::move(other));
-        m_isBlocking = other.m_isBlocking;
         return *this;
     }
 
     ~ListeningSocket() = default;
-
-    [[nodiscard]]
-    auto isBlocking() const noexcept -> bool
-    {
-        return m_isBlocking;
-    }
 
     [[nodiscard]]
     auto accept() const -> std::optional<TCPSocket>
