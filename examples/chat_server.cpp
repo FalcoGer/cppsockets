@@ -25,13 +25,10 @@ auto main() -> int
             std::cout << *newClient << " connected.\n";
             newClient->setBlocking(false);
             newClient->send("Welcome to the chat.\n");
+            messageQueue.push_back(
+              std::format("{}:{} has joined.\n", newClient->getAddress().data(), newClient->getPort().data())
+            );
             clients.push_back(std::move(*newClient));
-            for (auto& client : clients)
-            {
-                messageQueue.push_back(
-                  std::format("{}:{} has joined.\n", client.getAddress().data(), client.getPort().data())
-                );
-            }
         }
         for (auto& client : clients)
         {
