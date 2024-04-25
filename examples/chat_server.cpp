@@ -22,10 +22,10 @@ auto main() -> int
         auto newClient = sock.accept();
         if (newClient.has_value())
         {
+            std::cout << *newClient << " connected.\n";
             newClient->setBlocking(false);
-            clients.push_back(std::move(*newClient));
-            std::cout << clients.back() << " connected.\n";
             newClient->send("Welcome to the chat.\n");
+            clients.push_back(std::move(*newClient));
             for (auto& client : clients)
             {
                 messageQueue.push_back(
