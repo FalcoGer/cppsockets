@@ -202,6 +202,30 @@ class Socket
         return (static_cast<uint32_t>(flags) & O_NONBLOCK) == 0;
     }
 
+    void setBlocking(const bool BLOCKING) const
+    {
+        auto flags = static_cast<std::uint32_t>(fcntl(getFD(), F_GETFL, 0));
+        if (flags == static_cast<std::uint32_t>(-1))
+        {
+            throw std::runtime_error("fcntl get flags failed");
+        }
+
+        if (BLOCKING)
+        {
+            flags &= ~static_cast<std::uint32_t>(O_NONBLOCK);
+        }
+        else
+        {
+            flags |= static_cast<std::uint32_t>(O_NONBLOCK);
+        }
+
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg) // Is there an alternative?
+        if (fcntl(getFD(), F_SETFL, flags) == -1)
+        {
+            throw std::runtime_error("fcntl set flags failed");
+        }
+    }
+
     auto operator== (const Socket& other) const -> bool { return m_socketFD == other.m_socketFD; }
 
     auto operator!= (const Socket& other) const -> bool { return m_socketFD != other.m_socketFD; }

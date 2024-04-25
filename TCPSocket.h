@@ -78,16 +78,7 @@ class TCPSocket : public Socket
 
         if (!BLOCKING)
         {
-            int flags = fcntl(getFD(), F_GETFL, 0);
-            if (flags == -1)
-            {
-                throw std::runtime_error("fcntl get flags failed");
-            }
-            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg) // Is there an alternative?
-            if (fcntl(getFD(), F_SETFL, static_cast<std::uint32_t>(flags) | O_NONBLOCK) == -1)
-            {
-                throw std::runtime_error("fcntl set flags failed");
-            }
+            setBlocking(false);
         }
 
         setSockInfo();
