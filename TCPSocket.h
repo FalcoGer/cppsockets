@@ -19,6 +19,9 @@
 #include "NetAddress.h"
 #include "Socket.h"
 
+namespace CPPSockets
+{
+
 class TCPSocket : public Socket
 {
   public:
@@ -230,3 +233,5 @@ class TCPSocket : public Socket
         return ss.str();
     }
 };
+
+} // namespace CPPSockets

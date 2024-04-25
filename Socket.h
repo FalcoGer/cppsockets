@@ -14,6 +14,9 @@
 #include "NetAddress.h"
 #include "Port.h"
 
+namespace CPPSockets
+{
+
 class Socket
 {
   public:
@@ -208,3 +211,5 @@ inline auto operator<< (std::ostream& ostream, const Socket& socket) -> std::ost
 {
     return (ostream << socket.getAddress().data() << ':' << socket.getPort().data());
 }
+
+} // namespace CPPSockets

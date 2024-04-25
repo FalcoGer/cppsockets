@@ -18,6 +18,9 @@
 #include "Socket.h"
 #include "TCPSocket.h"
 
+namespace CPPSockets
+{
+
 class ListeningSocket : public Socket
 {
   private:
@@ -144,3 +147,5 @@ class ListeningSocket : public Socket
         return TCPSocket(FD);
     }
 };
+
+} // namespace CPPSockets

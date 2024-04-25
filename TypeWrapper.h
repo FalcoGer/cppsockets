@@ -3,6 +3,10 @@
 #include <istream>
 #include <ostream>
 #include <utility>
+
+namespace CPPSockets
+{
+
 template <typename T>
 class TypeWrapper
 {
@@ -66,5 +70,6 @@ class TypeWrapper
     {
         return (stream >> m_data);
     }
-
 };
+
+} // namespace CPPSockets
