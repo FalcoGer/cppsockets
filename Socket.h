@@ -95,7 +95,8 @@ class Socket
             }
 
             m_port    = Port(ntohs(addr.sin6_port));
-            m_address = NetAddress {std::string(ipBuffer.begin(), ipBuffer.end())};
+            auto* ptr_it = std::find(ipBuffer.begin(), ipBuffer.end(), '\0');
+            m_address = NetAddress {std::string(ipBuffer.begin(), ptr_it)};
         }
         else
         {
@@ -125,8 +126,9 @@ class Socket
                 throw std::runtime_error("Failed to convert IP address to string");
             }
 
-            m_port    = Port(ntohs(addr.sin_port));
-            m_address = NetAddress {std::string(ipBuffer.begin(), ipBuffer.end())};
+            m_port = Port(ntohs(addr.sin_port));
+            auto* ptr_it = std::find(ipBuffer.begin(), ipBuffer.end(), '\0');
+            m_address = NetAddress {std::string(ipBuffer.begin(), ptr_it)};
         }
     }
 
