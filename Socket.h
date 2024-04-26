@@ -65,23 +65,69 @@ class Socket
     void setStatus(ESocketStatus status) { m_status = status; }
     void setSockInfo()
     {
-        sockaddr_in addr {};
-        socklen_t   addrLen = sizeof(addr);
-
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) // Using c-style APIs is horror.
-        if (getsockname(m_socketFD, reinterpret_cast<sockaddr*>(&addr), &addrLen) == -1)
+        const bool IS_LISTENING_SOCKET = isListeningSocket();
+        if (getAddressFamily() == EAddressFamily::IPV6)
         {
-            throw std::runtime_error("Failed to get socket address");
-        }
+            sockaddr_in6 addr {};
+            socklen_t    addrLen = sizeof(addr);
 
-        std::array<char, INET_ADDRSTRLEN> ipBuffer {};
-        if (inet_ntop(AF_INET, &addr.sin_addr, ipBuffer.data(), ipBuffer.size()) == nullptr)
+            if (IS_LISTENING_SOCKET)
+            {
+                // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) // Using c-style APIs is horror.
+                if (getsockname(m_socketFD, reinterpret_cast<sockaddr*>(&addr), &addrLen) == -1)
+                {
+                    throw std::runtime_error("Failed to get socket address");
+                }
+            }
+            else
+            {
+                // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) // Using c-style APIs is horror.
+                if (getpeername(m_socketFD, reinterpret_cast<sockaddr*>(&addr), &addrLen) == -1)
+                {
+                    throw std::runtime_error("Failed to get socket address");
+                }
+            }
+
+            std::array<char, INET6_ADDRSTRLEN> ipBuffer {};
+            if (inet_ntop(AF_INET6, &addr.sin6_addr, ipBuffer.data(), ipBuffer.size()) == nullptr)
+            {
+                throw std::runtime_error("Failed to convert IP address to string");
+            }
+
+            m_port    = Port(ntohs(addr.sin6_port));
+            m_address = NetAddress {std::string(ipBuffer.begin(), ipBuffer.end())};
+        }
+        else
         {
-            throw std::runtime_error("Failed to convert IP address to string");
-        }
+            sockaddr_in addr {};
+            socklen_t   addrLen = sizeof(addr);
 
-        m_port    = Port(ntohs(addr.sin_port));
-        m_address = NetAddress {std::string(ipBuffer.begin(), ipBuffer.end())};
+            if (IS_LISTENING_SOCKET)
+            {
+                // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) // Using c-style APIs is horror.
+                if (getsockname(m_socketFD, reinterpret_cast<sockaddr*>(&addr), &addrLen) == -1)
+                {
+                    throw std::runtime_error("Failed to get socket address");
+                }
+            }
+            else
+            {
+                // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) // Using c-style APIs is horror.
+                if (getpeername(m_socketFD, reinterpret_cast<sockaddr*>(&addr), &addrLen) == -1)
+                {
+                    throw std::runtime_error("Failed to get socket address");
+                }
+            }
+
+            std::array<char, INET_ADDRSTRLEN> ipBuffer {};
+            if (inet_ntop(AF_INET, &addr.sin_addr, ipBuffer.data(), ipBuffer.size()) == nullptr)
+            {
+                throw std::runtime_error("Failed to convert IP address to string");
+            }
+
+            m_port    = Port(ntohs(addr.sin_port));
+            m_address = NetAddress {std::string(ipBuffer.begin(), ipBuffer.end())};
+        }
     }
 
     [[nodiscard]]
@@ -224,6 +270,18 @@ class Socket
         {
             throw std::runtime_error("fcntl set flags failed");
         }
+    }
+
+    [[nodiscard]]
+    auto isListeningSocket() const -> bool
+    {
+        int acceptConn{};
+        socklen_t optionLen = sizeof(acceptConn);
+        if (getsockopt(m_socketFD, SOL_SOCKET, SO_ACCEPTCONN, &acceptConn, &optionLen) == -1)
+        {
+            throw std::runtime_error("getsockopt SO_ACCEPTCONN failed");
+        }
+        return acceptConn != 0;
     }
 
     auto operator== (const Socket& other) const -> bool { return m_socketFD == other.m_socketFD; }
