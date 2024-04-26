@@ -9,7 +9,7 @@ using namespace CPPSockets;
 
 auto main() -> int
 {
-    const NetAddress         BINDADDR("127.0.0.1");
+    const NetAddress         BINDADDR("0.0.0.0");
     const Port               BINDPORT(4'444);
 
     std::vector<TCPSocket>   clients {};
